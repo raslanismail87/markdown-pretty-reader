@@ -1,28 +1,29 @@
 
 
-# Markdown Prettier
+# Three View Modes: Preview, Split, and Edit
 
-A clean, light-mode markdown reader where users can paste raw markdown text and see it rendered beautifully.
+Add a view mode toggle to the header that lets users switch between three layouts:
 
-## Features
+1. **Edit** -- Shows only the markdown editor (full width)
+2. **Split** -- Shows both editor and preview side by side (current default behavior)
+3. **Preview** -- Shows only the rendered preview (full width)
 
-### 1. Split-Pane Layout
-- Left side: a text area where users paste or type raw markdown
-- Right side: a live-rendered preview of the markdown, styled for readability
+## Changes
 
-### 2. Beautiful Markdown Rendering
-- Support for all common markdown elements: headings, bold, italic, links, images, code blocks (with syntax highlighting), blockquotes, lists, tables, and horizontal rules
-- Clean typography with good spacing, font sizes, and line heights for comfortable reading
+### `src/pages/Index.tsx`
+- Add a `viewMode` state with values `"edit" | "split" | "preview"`, defaulting to `"split"`
+- Add a toggle group in the header (using icons similar to the reference image) with three buttons:
+  - Edit icon (lines/list icon) for edit-only mode
+  - Split icon (columns icon) for split view
+  - Preview icon (eye/document icon) for preview-only mode
+- Conditionally render the editor pane (visible in "edit" and "split" modes)
+- Conditionally render the preview pane (visible in "preview" and "split" modes)
+- When in single-pane mode, the visible pane takes full width/height
 
-### 3. Toolbar Actions
-- **Copy rendered HTML** button to clipboard
-- **Clear** button to reset the editor
-- **Sample markdown** button to load an example document for first-time users
+### Icons
+Use Lucide icons: `AlignLeft` (edit), `Columns2` (split), `Eye` (preview) -- or similar icons that match the reference image's minimal toolbar style.
 
-### 4. Header & Branding
-- Simple top bar with the app name "Markdown Prettier" and a minimal, elegant design
-
-### 5. Responsive Design
-- On smaller screens, the panes stack vertically (editor on top, preview below)
-- Light mode only with a clean white/gray color palette
+### Styling
+- The toggle group will use a compact, icon-only button group in the header, styled similarly to the reference screenshot (dark rounded pill with icon buttons)
+- Active mode gets a highlighted/selected state
 
