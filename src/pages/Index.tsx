@@ -1,15 +1,19 @@
 import { useState, useRef } from "react";
-import { Copy, Trash2, FileText, Check } from "lucide-react";
+import { Copy, Trash2, FileText, Check, AlignLeft, Columns2, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import MarkdownPreview from "@/components/MarkdownPreview";
 import { sampleMarkdown } from "@/lib/sample-markdown";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "sonner";
 
+type ViewMode = "edit" | "split" | "preview";
+
 const Index = () => {
   const [markdown, setMarkdown] = useState("");
   const [copied, setCopied] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>("split");
   const isMobile = useIsMobile();
   const previewRef = useRef<HTMLDivElement>(null);
 
@@ -47,6 +51,22 @@ const Index = () => {
           </h1>
         </div>
         <div className="flex items-center gap-2">
+          <ToggleGroup
+            type="single"
+            value={viewMode}
+            onValueChange={(v) => v && setViewMode(v as ViewMode)}
+            className="bg-muted rounded-lg p-0.5 gap-0"
+          >
+            <ToggleGroupItem value="edit" aria-label="Edit only" size="sm" className="rounded-md px-2 data-[state=on]:bg-background data-[state=on]:shadow-sm">
+              <AlignLeft className="h-4 w-4" />
+            </ToggleGroupItem>
+            <ToggleGroupItem value="split" aria-label="Split view" size="sm" className="rounded-md px-2 data-[state=on]:bg-background data-[state=on]:shadow-sm">
+              <Columns2 className="h-4 w-4" />
+            </ToggleGroupItem>
+            <ToggleGroupItem value="preview" aria-label="Preview only" size="sm" className="rounded-md px-2 data-[state=on]:bg-background data-[state=on]:shadow-sm">
+              <Eye className="h-4 w-4" />
+            </ToggleGroupItem>
+          </ToggleGroup>
           <Button variant="ghost" size="sm" onClick={handleLoadSample}>
             <FileText className="h-4 w-4 mr-1" />
             Sample
@@ -65,30 +85,34 @@ const Index = () => {
       {/* Split Pane */}
       <div className={`flex flex-1 min-h-0 ${isMobile ? "flex-col" : "flex-row"}`}>
         {/* Editor */}
-        <div className={`${isMobile ? "h-1/2" : "w-1/2"} border-r border-border flex flex-col`}>
-          <div className="px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider border-b border-border bg-muted/30">
-            Markdown
+        {(viewMode === "edit" || viewMode === "split") && (
+          <div className={`${viewMode === "split" ? (isMobile ? "h-1/2" : "w-1/2") : "flex-1"} ${viewMode === "split" ? "border-r border-border" : ""} flex flex-col`}>
+            <div className="px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider border-b border-border bg-muted/30">
+              Markdown
+            </div>
+            <textarea
+              value={markdown}
+              onChange={(e) => setMarkdown(e.target.value)}
+              placeholder="Paste or type your markdown here..."
+              className="flex-1 w-full resize-none bg-background p-4 font-mono text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+              spellCheck={false}
+            />
           </div>
-          <textarea
-            value={markdown}
-            onChange={(e) => setMarkdown(e.target.value)}
-            placeholder="Paste or type your markdown here..."
-            className="flex-1 w-full resize-none bg-background p-4 font-mono text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
-            spellCheck={false}
-          />
-        </div>
+        )}
 
         {/* Preview */}
-        <div className={`${isMobile ? "h-1/2" : "w-1/2"} flex flex-col`}>
-          <div className="px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider border-b border-border bg-muted/30">
-            Preview
-          </div>
-          <ScrollArea className="flex-1">
-            <div ref={previewRef}>
-              <MarkdownPreview content={displayContent} />
+        {(viewMode === "preview" || viewMode === "split") && (
+          <div className={`${viewMode === "split" ? (isMobile ? "h-1/2" : "w-1/2") : "flex-1"} flex flex-col`}>
+            <div className="px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider border-b border-border bg-muted/30">
+              Preview
             </div>
-          </ScrollArea>
-        </div>
+            <ScrollArea className="flex-1">
+              <div ref={previewRef}>
+                <MarkdownPreview content={displayContent} />
+              </div>
+            </ScrollArea>
+          </div>
+        )}
       </div>
     </div>
   );
