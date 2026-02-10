@@ -2,6 +2,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
+import MermaidDiagram from "./MermaidDiagram";
 
 interface MarkdownPreviewProps {
   content: string;
@@ -16,6 +17,9 @@ const MarkdownPreview = ({ content }: MarkdownPreviewProps) => {
           code({ className, children, ...props }) {
             const match = /language-(\w+)/.exec(className || "");
             const isInline = !match;
+            if (match && match[1] === "mermaid") {
+              return <MermaidDiagram chart={String(children).replace(/\n$/, "")} />;
+            }
             return isInline ? (
               <code
                 className="rounded bg-muted px-1.5 py-0.5 text-sm font-mono text-foreground"
