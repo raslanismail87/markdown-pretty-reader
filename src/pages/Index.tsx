@@ -11,7 +11,7 @@ import { toast } from "sonner";
 type ViewMode = "edit" | "split" | "preview";
 
 const Index = () => {
-  const [markdown, setMarkdown] = useState("");
+  const [markdown, setMarkdown] = useState(sampleMarkdown);
   const [copied, setCopied] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("split");
   const isMobile = useIsMobile();
@@ -37,7 +37,6 @@ const Index = () => {
     toast.success("Sample markdown loaded");
   };
 
-  const displayContent = markdown || sampleMarkdown;
   const hasContent = markdown.length > 0;
 
   return (
@@ -108,7 +107,7 @@ const Index = () => {
             </div>
             <ScrollArea className="flex-1">
               <div ref={previewRef}>
-                <MarkdownPreview content={displayContent} />
+                <MarkdownPreview content={markdown} />
               </div>
             </ScrollArea>
           </div>
