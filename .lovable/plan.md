@@ -1,34 +1,18 @@
 
 
-# Add Mermaid.js Diagram Rendering
+# Fix: Sample Markdown Not Showing in Editor
 
-Render mermaid code blocks as visual diagrams instead of raw text.
+## Problem
+The editor textarea starts empty while the preview shows the sample markdown. This happens because `markdown` state is initialized as an empty string `""`, but the preview uses a fallback: `const displayContent = markdown || sampleMarkdown`. So the preview gets the sample content, but the textarea only shows the empty `markdown` state.
 
-## Approach
-
-Install the `mermaid` library and create a Mermaid renderer component. Then update the `MarkdownPreview` component to detect code blocks with language "mermaid" and render them as diagrams.
-
-## Changes
-
-### 1. Install dependency
-- `mermaid` -- the official Mermaid.js library for rendering diagrams
-
-### 2. Create `src/components/MermaidDiagram.tsx`
-- A component that accepts a `chart` string prop
-- Uses `useEffect` to call `mermaid.render()` with the chart definition
-- Displays the resulting SVG via `dangerouslySetInnerHTML`
-- Generates a unique ID per instance to avoid conflicts
-- Handles render errors gracefully (falls back to showing raw text in a code block)
-- Configures mermaid with `theme: 'default'` (light mode) and `startOnLoad: false`
-
-### 3. Update `src/components/MarkdownPreview.tsx`
-- In the `code` component override, add a check: if the language is `mermaid`, render `<MermaidDiagram chart={children} />` instead of `SyntaxHighlighter`
-- All other code blocks remain unchanged
+## Solution
+Initialize the `markdown` state with `sampleMarkdown` instead of an empty string. This way both the editor and preview show the same content on load.
 
 ## Technical Details
 
-- Mermaid is initialized once with `mermaid.initialize({ startOnLoad: false, theme: 'default' })`
-- Each diagram gets a unique ID using a counter or `crypto.randomUUID()` to support multiple diagrams on the same page
-- The component re-renders the diagram when the chart content changes
-- Error state shows the raw mermaid text with an error message so users can debug their syntax
+### `src/pages/Index.tsx`
+- Change `useState("")` to `useState(sampleMarkdown)` on the markdown state initialization
+- Remove the `displayContent` fallback variable since it's no longer needed -- just pass `markdown` directly to the preview
+- The "Load Sample" button will still work (it sets `markdown` to `sampleMarkdown`)
+- The "Clear" button will still work (it sets `markdown` to `""`)
 
