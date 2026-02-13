@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Copy, Trash2, FileText, FileSpreadsheet, Check, AlignLeft, Columns2, Eye } from "lucide-react";
+import { Copy, Trash2, FileText, FileSpreadsheet, Code, Check, AlignLeft, Columns2, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -7,13 +7,15 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import MarkdownPreview from "@/components/MarkdownPreview";
 import CsvPreview from "@/components/CsvPreview";
+import HtmlPreview from "@/components/HtmlPreview";
 import { sampleMarkdown } from "@/lib/sample-markdown";
 import { sampleCsv } from "@/lib/sample-csv";
+import { sampleHtml } from "@/lib/sample-html";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "sonner";
 
 type ViewMode = "edit" | "split" | "preview";
-type ContentMode = "markdown" | "csv";
+type ContentMode = "markdown" | "csv" | "html";
 
 const Index = () => {
   const [markdown, setMarkdown] = useState(sampleMarkdown);
@@ -40,8 +42,14 @@ const Index = () => {
   };
 
   const handleLoadSample = () => {
-    setMarkdown(contentMode === "markdown" ? sampleMarkdown : sampleCsv);
-    toast.success(`Sample ${contentMode === "markdown" ? "markdown" : "CSV"} loaded`);
+    const samples: Record<ContentMode, { content: string; label: string }> = {
+      markdown: { content: sampleMarkdown, label: "markdown" },
+      csv: { content: sampleCsv, label: "CSV" },
+      html: { content: sampleHtml, label: "HTML" },
+    };
+    const { content, label } = samples[contentMode];
+    setMarkdown(content);
+    toast.success(`Sample ${label} loaded`);
   };
 
   const hasContent = markdown.length > 0;
@@ -57,7 +65,16 @@ const Index = () => {
           </h1>
         </div>
         <div className="flex items-center gap-2">
-          <Tabs value={contentMode} onValueChange={(v) => setContentMode(v as ContentMode)}>
+          <Tabs value={contentMode} onValueChange={(v) => {
+            const mode = v as ContentMode;
+            setContentMode(mode);
+            const samples: Record<ContentMode, string> = {
+              markdown: sampleMarkdown,
+              csv: sampleCsv,
+              html: sampleHtml,
+            };
+            setMarkdown(samples[mode]);
+          }}>
             <TabsList className="h-9">
               <TabsTrigger value="markdown">
                 <FileText className="h-4 w-4 mr-1" />
@@ -66,6 +83,10 @@ const Index = () => {
               <TabsTrigger value="csv">
                 <FileSpreadsheet className="h-4 w-4 mr-1" />
                 CSV
+              </TabsTrigger>
+              <TabsTrigger value="html">
+                <Code className="h-4 w-4 mr-1" />
+                HTML
               </TabsTrigger>
             </TabsList>
           </Tabs>
@@ -119,12 +140,12 @@ const Index = () => {
         {(viewMode === "edit" || viewMode === "split") && (
           <div className={`${viewMode === "split" ? (isMobile ? "h-1/2" : "w-1/2") : "flex-1"} ${viewMode === "split" ? "border-r border-border" : ""} flex flex-col`}>
             <div className="px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider border-b border-border bg-muted/30">
-              {contentMode === "markdown" ? "Markdown" : "CSV"}
+              {contentMode === "markdown" ? "Markdown" : contentMode === "csv" ? "CSV" : "HTML"}
             </div>
             <textarea
               value={markdown}
               onChange={(e) => setMarkdown(e.target.value)}
-              placeholder={contentMode === "markdown" ? "Paste or type your markdown here..." : "Paste or type your CSV data here..."}
+              placeholder={contentMode === "markdown" ? "Paste or type your markdown here..." : contentMode === "csv" ? "Paste or type your CSV data here..." : "Paste or type your HTML here..."}
               className="flex-1 w-full resize-none bg-background p-4 font-mono text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
               spellCheck={false}
             />
@@ -137,15 +158,18 @@ const Index = () => {
             <div className="px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider border-b border-border bg-muted/30">
               Preview
             </div>
-            <ScrollArea className="flex-1">
-              <div ref={previewRef}>
-                {contentMode === "markdown" ? (
-                  <MarkdownPreview content={markdown} />
-                ) : (
-                  <CsvPreview content={markdown} separator={separator} />
-                )}
+            {contentMode === "html" ? (
+              <div ref={previewRef} className="flex-1 min-h-0">
+                <HtmlPreview content={markdown} />
               </div>
-            </ScrollArea>
+            ) : (
+              <ScrollArea className="flex-1">
+                <div ref={previewRef}>
+                  {contentMode === "markdown" && <MarkdownPreview content={markdown} />}
+                  {contentMode === "csv" && <CsvPreview content={markdown} separator={separator} />}
+                </div>
+              </ScrollArea>
+            )}
           </div>
         )}
       </div>
