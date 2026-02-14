@@ -65,31 +65,6 @@ const Index = () => {
           </h1>
         </div>
         <div className="flex items-center gap-2">
-          <Tabs value={contentMode} onValueChange={(v) => {
-            const mode = v as ContentMode;
-            setContentMode(mode);
-            const samples: Record<ContentMode, string> = {
-              markdown: sampleMarkdown,
-              csv: sampleCsv,
-              html: sampleHtml,
-            };
-            setMarkdown(samples[mode]);
-          }}>
-            <TabsList className="h-9">
-              <TabsTrigger value="markdown">
-                <FileText className="h-4 w-4 mr-1" />
-                Markdown
-              </TabsTrigger>
-              <TabsTrigger value="csv">
-                <FileSpreadsheet className="h-4 w-4 mr-1" />
-                CSV
-              </TabsTrigger>
-              <TabsTrigger value="html">
-                <Code className="h-4 w-4 mr-1" />
-                HTML
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
           {contentMode === "csv" && (
             <Select value={separator} onValueChange={setSeparator}>
               <SelectTrigger className="h-9 w-[140px]">
@@ -103,6 +78,31 @@ const Index = () => {
               </SelectContent>
             </Select>
           )}
+          <Tabs value={contentMode} onValueChange={(v) => {
+            const mode = v as ContentMode;
+            setContentMode(mode);
+            const samples: Record<ContentMode, string> = {
+              markdown: sampleMarkdown,
+              csv: sampleCsv,
+              html: sampleHtml,
+            };
+            setMarkdown(samples[mode]);
+          }}>
+            <TabsList className="h-9">
+              <TabsTrigger value="csv">
+                <FileSpreadsheet className="h-4 w-4 mr-1" />
+                CSV
+              </TabsTrigger>
+              <TabsTrigger value="markdown">
+                <FileText className="h-4 w-4 mr-1" />
+                Markdown
+              </TabsTrigger>
+              <TabsTrigger value="html">
+                <Code className="h-4 w-4 mr-1" />
+                HTML
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
           <ToggleGroup
             type="single"
             value={viewMode}
