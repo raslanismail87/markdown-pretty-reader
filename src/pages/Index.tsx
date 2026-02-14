@@ -166,7 +166,7 @@ const Index = () => {
               <ScrollArea className="flex-1">
                 <div ref={previewRef}>
                   {contentMode === "markdown" && <MarkdownPreview content={markdown} />}
-                  {contentMode === "csv" && <CsvPreview content={markdown} separator={separator} />}
+                  {contentMode === "csv" && <CsvPreview content={markdown} separator={separator} onContentChange={setMarkdown} />}
                 </div>
               </ScrollArea>
             )}
