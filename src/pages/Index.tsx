@@ -1,5 +1,5 @@
-import { useState, useRef } from "react";
-import { Copy, Trash2, FileText, FileSpreadsheet, Code, Check, AlignLeft, Columns2, Eye } from "lucide-react";
+import { useState } from "react";
+import { Trash2, FileText, FileSpreadsheet, Code, AlignLeft, Columns2, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -19,22 +19,12 @@ type ContentMode = "markdown" | "csv" | "html";
 
 const Index = () => {
   const [markdown, setMarkdown] = useState(sampleMarkdown);
-  const [copied, setCopied] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("split");
   const [contentMode, setContentMode] = useState<ContentMode>("markdown");
   const [separator, setSeparator] = useState(";");
   const isMobile = useIsMobile();
-  const previewRef = useRef<HTMLDivElement>(null);
 
-  const handleCopyHTML = async () => {
-    if (previewRef.current) {
-      const html = previewRef.current.innerHTML;
-      await navigator.clipboard.writeText(html);
-      setCopied(true);
-      toast.success("HTML copied to clipboard");
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
+
 
   const handleClear = () => {
     setMarkdown("");
@@ -127,10 +117,6 @@ const Index = () => {
             <Trash2 className="h-4 w-4 mr-1" />
             Clear
           </Button>
-          <Button variant="outline" size="sm" onClick={handleCopyHTML}>
-            {copied ? <Check className="h-4 w-4 mr-1" /> : <Copy className="h-4 w-4 mr-1" />}
-            {copied ? "Copied" : "Copy HTML"}
-          </Button>
         </div>
       </header>
 
@@ -159,12 +145,12 @@ const Index = () => {
               Preview
             </div>
             {contentMode === "html" ? (
-              <div ref={previewRef} className="flex-1 min-h-0">
+              <div className="flex-1 min-h-0">
                 <HtmlPreview content={markdown} />
               </div>
             ) : (
               <ScrollArea className="flex-1">
-                <div ref={previewRef}>
+                <div>
                   {contentMode === "markdown" && <MarkdownPreview content={markdown} />}
                   {contentMode === "csv" && <CsvPreview content={markdown} separator={separator} onContentChange={setMarkdown} />}
                 </div>
